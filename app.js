@@ -1,36 +1,22 @@
 const express = require('express')
-const users = require('./DataBase/user')
+const usersRouter = require("./routers/user.router");
+const axios = require('axios')
+
+
 
 const app = express()
 
-app.get('/',(reg,res)=>{
+app.use(express.json())
+app.use(express.urlencoded({extended:true}))
+
+app.get('/',async (reg,res)=>{
     console.log(reg)
-    res.json('Hellow Exspress')
+    const resp = await axios.get('https://jsonplaceholder.typicode.com/users')
+    res.status(resp.status).json(resp.data)
 })
 
-app.get ('/users', (reg,res)=>{
 
-    res.json (users)
-})
-
-app.get ('/users/:userId', (reg,res)=> {
-
-    const userIndex = +reg.params.userId;
-
-    if (userIndex <0) {
-        res.status(400).json('Please enter valid id')
-        return;
-    }
-
-
-    const user= users[userIndex];
-    if (!user) {
-        res.status(404).json(`User with Id ${userIndex} is not found`)
-        return;
-    }
-
-    res.json (users)
-})
+app.use('/users', usersRouter)
 
 app.listen(5000, ()=>{
     console.log('Server listen on port 5000')
